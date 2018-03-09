@@ -156,6 +156,8 @@ architecture rtl of top is
   signal dir_blue            : std_logic_vector(7 downto 0);
   signal dir_pixel_column    : std_logic_vector(10 downto 0);
   signal dir_pixel_row       : std_logic_vector(10 downto 0);
+  
+  signal sRGB					  : std_logic_vector(23 downto 0);
 
 begin
 
@@ -260,6 +262,15 @@ begin
   --pixel_address
   --pixel_value
   --pixel_we
+  
+  sRGB <= x"FF0000" when dir_pixel_row >= 50 and dir_pixel_row < 480/3 and dir_pixel_column >=50 and dir_pixel_column<= 590else
+			 x"0000FF" when dir_pixel_row >= 480/3 and dir_pixel_row <=2*480/3 and dir_pixel_column >= 50 and dir_pixel_column <= 590 else
+			 x"FFFFFF" when dir_pixel_row >=2*480/3 and dir_pixel_row <= 480-50 and dir_pixel_column >= 50 and dir_pixel_column <= 590 else
+			 x"000000";
+  
+  dir_red <= sRGB(23 downto 16);
+  dir_green <= sRGB(15 downto 8);
+  dir_blue <= sRGB(7 downto 0);
   
   
 end rtl;
