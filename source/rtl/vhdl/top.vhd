@@ -170,11 +170,11 @@ begin
   graphics_lenght <= conv_std_logic_vector(MEM_SIZE*8*8, GRAPH_MEM_ADDR_WIDTH);
   
   -- removed to inputs pin
-  direct_mode <= '1';
-  display_mode     <= "10";  -- 01 - text mode, 10 - graphics mode, 11 - text & graphics
+  direct_mode <= '0';
+  display_mode     <= "01";  -- 01 - text mode, 10 - graphics mode, 11 - text & graphics
   
   font_size        <= x"1";
-  show_frame       <= '1';
+  show_frame       <= '0';
   foreground_color <= x"FFFFFF";
   background_color <= x"000000";
   frame_color      <= x"FF0000";
@@ -271,6 +271,32 @@ begin
   dir_red <= sRGB(23 downto 16);
   dir_green <= sRGB(15 downto 8);
   dir_blue <= sRGB(7 downto 0);
+  
+  char_we <= '1';
+  
+	process(pix_clock_s, reset_n_i) begin
+		if reset_n_i = '0' then
+			char_address <= (others=>'0');
+		elsif rising_edge(pix_clock_s) then
+			if (char_address = "01001011000000") then
+				char_address <= (others=>'0');
+			else
+				char_address <= char_address + '1';
+			end if;
+		end if;
+	end process;
+  
+	char_value <=  "00" & x"D" when char_address = x"1" else		
+						"00" & x"1" when char_address = x"2" else		
+						"00" & x"3" when char_address = x"3" else		
+						"00" & x"5" when char_address = x"4" else
+						"00" & x"A" when char_address = x"6" else
+						"00" & x"5" when char_address = x"7" else
+						"00" & x"3" when char_address = x"9" else
+						"00" & x"1" when char_address = x"A" else
+						"01" & x"2" when char_address = x"B" else
+						"100000";
+  
   
   
 end rtl;
