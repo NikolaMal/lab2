@@ -156,9 +156,9 @@ architecture rtl of top is
   signal dir_blue            : std_logic_vector(7 downto 0);
   signal dir_pixel_column    : std_logic_vector(10 downto 0);
   signal dir_pixel_row       : std_logic_vector(10 downto 0);
-  
+  signal pom					  : std_logic_vector(23 downto 0);
   signal sRGB					  : std_logic_vector(23 downto 0);
-
+  signal pom1					  : std_logic_vector(7 downto 0);
 begin
 
   -- calculate message lenght from font size
@@ -171,7 +171,7 @@ begin
   
   -- removed to inputs pin
   direct_mode <= '0';
-  display_mode     <= "01";  -- 01 - text mode, 10 - graphics mode, 11 - text & graphics
+  display_mode     <= "10";  -- 01 - text mode, 10 - graphics mode, 11 - text & graphics
   
   font_size        <= x"1";
   show_frame       <= '0';
@@ -296,6 +296,43 @@ begin
 						"00" & x"1" when char_address = x"A" else
 						"01" & x"2" when char_address = x"B" else
 						"100000";
+						
+						
+	pixel_we<='1';
+	
+	
+	process(pix_clock_s,vga_rst_n_s)
+  begin
+	if(vga_rst_n_s='0') then
+	 pixel_address<=(others => '0');
+	 pom <= "000000000000100001100100";
+	 pom1<="00000000";
+	elsif rising_edge(pix_clock_s) then
+		if(pixel_address=9599) then
+			if(pom1="11111111") then
+				if(pom=219) then
+					pom <="000000000000100001100100";
+				else 
+					pom <=pom+1;
+				end if;
+				
+				pom1<="00000000";
+			else
+				pom1<=pom1+1;
+			end if;
+			pixel_address<=(others => '0');
+		else
+			pixel_address<=pixel_address+1;
+		end if;
+		
+	
+	end if;
+  end process;
+  
+  
+  
+  pixel_value <= x"FFFFFFFF" when (pixel_address = pom)  or (pixel_address = pom+20)or (pixel_address = pom+40)or (pixel_address = pom+60)or (pixel_address = pom+80)or (pixel_address = pom+100)or (pixel_address = pom+120)or (pixel_address = pom+140)or (pixel_address = pom+160)or (pixel_address = pom+180)or (pixel_address = pom+200)or (pixel_address = pom+220)  or (pixel_address = pom+240) or (pixel_address = pom+260)or (pixel_address = pom+280) or (pixel_address = pom+300)or (pixel_address = pom+320)or (pixel_address = pom+340)or (pixel_address = pom+360)or (pixel_address = pom+380)or (pixel_address = pom+400)or (pixel_address = pom+420)or (pixel_address = pom+440)or (pixel_address = pom+460)or (pixel_address = pom+480)or (pixel_address = pom+500)else 
+					  x"00000000";
   
   
   
